@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/site-header";
 
 /**
@@ -6,7 +7,7 @@ import { SiteHeader } from "@/components/site-header";
  * Kept in a route group so the full-screen reader can later live OUTSIDE this
  * group (thus without the header/footer) for a distraction-free experience.
  */
-export default function AppLayout({ children }: LayoutProps<"/">) {
+export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <SiteHeader />
