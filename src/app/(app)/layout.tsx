@@ -12,9 +12,14 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <footer className="border-t">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-6 text-sm text-muted-foreground sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:px-6">
           <p>Free, legally distributable books — a calm digital reading room.</p>
-          <p>© {new Date().getFullYear()} Library</p>
+          <p>
+            © {new Date().getFullYear()}{" "}
+            <span lang="as" className="font-heading">
+              কিতাপ
+            </span>
+          </p>
         </div>
       </footer>
     </>

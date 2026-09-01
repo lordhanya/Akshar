@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Source_Serif_4,
+  Noto_Serif_Bengali,
+} from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -19,13 +24,36 @@ const readingSerif = Source_Serif_4({
   display: "swap",
 });
 
+// Bengali script covers Assamese (অসমীয়া); used for regional-language text.
+const bengaliSerif = Noto_Serif_Bengali({
+  variable: "--font-assamese",
+  subsets: ["bengali"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ),
   title: {
-    default: "Library — a calm digital reading room",
-    template: "%s · Library",
+    default: "কিতাপ — a calm place to read",
+    template: "%s · কিতাপ",
   },
   description:
-    "A clean, affordable, web-first digital reading platform with strong book discovery and regional-language support.",
+    "কিতাপ is a calm, free digital reading room with strong book discovery and regional-language support (including Assamese).",
+  openGraph: {
+    type: "website",
+    siteName: "কিতাপ",
+    title: "কিতাপ — a calm place to read",
+    description:
+      "Discover and read free, legally distributable books. A calm digital reading room with regional-language support.",
+  },
+  twitter: {
+    card: "summary",
+    title: "কিতাপ — a calm place to read",
+    description:
+      "Discover and read free, legally distributable books. A calm digital reading room with regional-language support.",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -33,7 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${readingSerif.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${readingSerif.variable} ${bengaliSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider
