@@ -18,7 +18,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <p>
             © {new Date().getFullYear()}{" "}
             <span lang="as" className="font-heading">
-              কিতাপ
+              Akshar
             </span>
           </p>
         </div>

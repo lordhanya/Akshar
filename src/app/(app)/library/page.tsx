@@ -12,7 +12,7 @@ import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "My Library",
-  description: "Your saved books on কিতাপ.",
+  description: "Your saved books on Akshar.",
 };
 
 export default async function LibraryPage() {

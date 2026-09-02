@@ -10,7 +10,7 @@ import { searchBooks, listLanguages, type CatalogBook } from "@/lib/books";
 
 export const metadata: Metadata = {
   title: "Search",
-  description: "Search the কিতাপ catalogue by title, author, or subject.",
+  description: "Search the Akshar catalogue by title, author, or subject.",
 };
 
 interface PageProps {

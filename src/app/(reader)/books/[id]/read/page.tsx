@@ -19,7 +19,7 @@ export async function generateMetadata({
   if (!result?.ok) return { title: "Reader" };
   return {
     title: result.book.title,
-    description: `Read ${result.book.title} by ${result.book.authors.join(", ")} in the কিতাপ reader.`,
+    description: `Read ${result.book.title} by ${result.book.authors.join(", ")} in the Akshar reader.`,
   };
 }
 

@@ -37,21 +37,21 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   ),
   title: {
-    default: "কিতাপ — a calm place to read",
-    template: "%s · কিতাপ",
+    default: "Akshar — a calm place to read",
+    template: "%s · Akshar",
   },
   description:
-    "কিতাপ is a calm, free digital reading room with strong book discovery and regional-language support (including Assamese).",
+    "Akshar is a calm, free digital reading room with strong book discovery and regional-language support (including Assamese).",
   openGraph: {
     type: "website",
-    siteName: "কিতাপ",
-    title: "কিতাপ — a calm place to read",
+    siteName: "Akshar",
+    title: "Akshar — a calm place to read",
     description:
       "Discover and read free, legally distributable books. A calm digital reading room with regional-language support.",
   },
   twitter: {
     card: "summary",
-    title: "কিতাপ — a calm place to read",
+    title: "Akshar — a calm place to read",
     description:
       "Discover and read free, legally distributable books. A calm digital reading room with regional-language support.",
   },

@@ -21,7 +21,7 @@ export async function SiteHeader() {
           className="flex items-center gap-2 font-heading text-lg tracking-tight"
         >
           <BookMarked className="size-5 text-primary" />
-          <span lang="as">কিতাপ</span>
+          <span lang="as">Akshar</span>
         </Link>
 
         <nav className="flex items-center gap-1">
