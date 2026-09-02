@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Clock } from "lucide-react";
 import { db } from "@/db";
-import { readingProgress, bookContent } from "@/db/schema";
+import { readingProgress } from "@/db/schema";
+import { BookCover } from "@/components/book-cover";
 import { Button } from "@/components/ui/button";
 import { getBookById } from "@/lib/books";
 
 /**
  * "Continue Reading" for an authenticated user.
  *
- * Reads persisted reading progress (Phase 3's reader will write this; the
- * table already exists) and renders the most recent in-progress book. When
- * there is no progress — or the user is anonymous — the section is omitted
- * entirely rather than shown empty.
+ * Shows the most recently opened books with reading progress. Each entry
+ * displays the book cover, title, author, progress bar, and a continue
+ * button. When there is no progress — or the user is anonymous — the
+ * section is omitted entirely.
  */
 export async function ContinueReading({
   userId,
@@ -24,10 +25,8 @@ export async function ContinueReading({
   const rows = await db
     .select({
       bookId: readingProgress.bookId,
-      chapterIndex: readingProgress.chapterIndex,
       positionPct: readingProgress.positionPct,
       lastOpenedAt: readingProgress.lastOpenedAt,
-      updatedAt: readingProgress.updatedAt,
     })
     .from(readingProgress)
     .where(eq(readingProgress.userId, userId))
@@ -40,12 +39,7 @@ export async function ContinueReading({
   for (const r of rows) {
     const book = await getBookById(r.bookId);
     if (!book) continue;
-    const contentRow = await db
-      .select({ wordCount: bookContent.wordCount, sections: bookContent.sections })
-      .from(bookContent)
-      .where(eq(bookContent.bookId, r.bookId))
-      .limit(1);
-    items.push({ ...r, book, content: contentRow[0] ?? null });
+    items.push({ ...r, book });
   }
 
   if (!items.length) return null;
@@ -62,37 +56,53 @@ export async function ContinueReading({
         </h2>
       </div>
 
-      <ul className="space-y-3">
-        {items.map(({ book, chapterIndex, positionPct, content }) => {
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {items.map(({ book, positionPct, lastOpenedAt }) => {
           const pct = Math.round((positionPct ?? 0) * 100);
-          const progress = content && content.wordCount
-            ? Math.min(100, Math.round(((positionPct ?? 0)) * 100))
-            : pct;
+          const timeAgo = lastOpenedAt ? formatTimeAgo(lastOpenedAt) : null;
+
           return (
             <li
               key={book.id}
-              className="flex items-center gap-4 rounded-2xl border bg-card p-4"
+              className="flex items-center gap-4 rounded-2xl border bg-card p-4 transition-colors hover:bg-muted/50"
             >
-              <div className="flex-1">
+              <Link
+                href={`/books/${book.id}`}
+                className="relative h-20 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-muted/40"
+              >
+                <BookCover
+                  src={book.coverUrl}
+                  alt={book.title}
+                  sizes="56px"
+                />
+              </Link>
+              <div className="min-w-0 flex-1">
                 <Link
                   href={`/books/${book.id}`}
-                  className="font-heading font-semibold hover:text-primary"
+                  className="line-clamp-1 font-heading font-semibold hover:text-primary"
                 >
                   {book.title}
                 </Link>
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  {book.authors.join(", ")}
-                  {chapterIndex != null
-                    ? ` · Section ${chapterIndex + 1}`
-                    : ""}
+                  {book.authors.join(", ") || "Unknown author"}
                 </p>
-                <div className="mt-3 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width: `${Math.min(100, progress)}%` }}
-                  />
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="h-1.5 flex-1 max-w-[160px] overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: `${Math.min(100, pct)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    {pct}%
+                  </span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">{progress}%</p>
+                {timeAgo && (
+                  <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="size-3" />
+                    {timeAgo}
+                  </p>
+                )}
               </div>
               <Button asChild size="sm">
                 <Link href={`/books/${book.id}/read`}>Continue</Link>
@@ -103,4 +113,18 @@ export async function ContinueReading({
       </ul>
     </section>
   );
+}
+
+function formatTimeAgo(date: Date): string {
+  const now = Date.now();
+  const then = date.getTime();
+  const diffMs = now - then;
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return date.toLocaleDateString();
 }
