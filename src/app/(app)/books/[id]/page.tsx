@@ -72,7 +72,7 @@ export default async function BookPage({ params }: PageProps) {
       </nav>
 
       <div className="grid gap-8 md:grid-cols-[220px_1fr]">
-        <div className="mx-auto aspect-[3/4] w-48 overflow-hidden rounded-xl bg-muted/40 ring-1 ring-foreground/10 md:w-full">
+        <div className="relative mx-auto aspect-[3/4] w-48 overflow-hidden rounded-xl bg-muted/40 ring-1 ring-foreground/10 md:w-full">
           <BookCover src={book.coverUrl} alt={book.title} sizes="220px" />
         </div>
 
