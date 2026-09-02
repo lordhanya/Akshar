@@ -138,7 +138,11 @@ export function FilterSelect({
         <SelectValue placeholder={placeholder ?? "Select…"} />
       </SelectTrigger>
       <SelectContent align="start">
-        {label ? <SelectLabel>{label}</SelectLabel> : null}
+        {label ? (
+          <SelectGroup>
+            <SelectLabel>{label}</SelectLabel>
+          </SelectGroup>
+        ) : null}
         {options.map((o) => (
           <SelectItem key={o.value} value={o.value}>
             {o.label}

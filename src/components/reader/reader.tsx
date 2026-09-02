@@ -72,9 +72,12 @@ export function Reader({
   userId: string | null;
   initialProgress: SavedReadingProgress | null;
 }) {
-  const { setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
   const [mounted, setMounted] = useState(false);
+  // Guards against re-applying the stored theme on first open, which would
+  // clobber a theme the user chose globally (e.g. via the header toggle).
+  const themeAppliedRef = useRef(false);
   const [activeSection, setActiveSection] = useState(0);
   const [pct, setPct] = useState(0);
 
@@ -96,17 +99,33 @@ export function Reader({
     } catch {
       /* ignore */
     }
+    // Sync the reader's displayed theme with the theme the app currently has
+    // (resolvedTheme) rather than the stored one, so opening the reader never
+    // overrides a theme the user chose globally — the stored value is instead
+    // remembered purely as a preference for future explicit changes.
+    const current =
+      resolvedTheme === "light" || resolvedTheme === "dark" || resolvedTheme === "sepia"
+        ? resolvedTheme
+        : loaded.theme;
+    loaded = { ...loaded, theme: current };
     // Reading localStorage after hydration requires a post-mount setState;
     // a lazy initializer can't see window on the server render. This is a
     // deliberate, hydration-safe exception to the "set state in effect" rule.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings(loaded);
     setMounted(true);
-  }, []);
+  }, [resolvedTheme]);
 
-  // Apply theme whenever settings change (after mount).
+  // Apply the theme only when the user actively changes it (e.g. via the Aa
+  // control), never on first open, so the reader inherits — and preserves —
+  // whatever theme is active globally.
   useEffect(() => {
-    if (mounted) setTheme(settings.theme);
+    if (!mounted) return;
+    if (!themeAppliedRef.current) {
+      themeAppliedRef.current = true;
+      return;
+    }
+    setTheme(settings.theme);
   }, [mounted, settings.theme, setTheme]);
 
   useEffect(() => {
