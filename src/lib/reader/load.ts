@@ -23,6 +23,7 @@ export interface ReaderBook {
   title: string;
   authors: string[];
   language: string;
+  coverUrl: string | null;
 }
 
 export type ReaderLoadResult =
@@ -65,6 +66,7 @@ export async function loadReaderContent(
       title: book.title,
       authors: book.authors,
       language: book.language,
+      coverUrl: book.coverUrl ?? null,
     },
     content: sections,
     userId: session?.user?.id ?? null,

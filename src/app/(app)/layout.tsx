@@ -17,9 +17,16 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <p>Free, legally distributable books — a calm digital reading room.</p>
           <p>
             © {new Date().getFullYear()}{" "}
-            <span lang="as" className="font-heading">
-              Akshar
-            </span>
+            <span className="font-heading">Akshar</span>{" "}
+            · Created &amp; developed by{" "}
+            <a
+              href="https://ashifcodes.tech"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors"
+            >
+              ashifcodes.tech
+            </a>
           </p>
         </div>
       </footer>

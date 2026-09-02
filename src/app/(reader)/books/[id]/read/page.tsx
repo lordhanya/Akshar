@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Reader } from "@/components/reader/reader";
 import { loadReaderContent } from "@/lib/reader/load";
 import { getReadingProgress } from "@/lib/reader/actions";
+import { isInLibrary } from "@/lib/library-actions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -50,14 +51,14 @@ export default async function ReadPage({ params }: PageProps) {
   const result = await loadReaderContent(id).catch(() => null);
 
   if (!result) {
-    return <Unavailable reason="We couldn’t load this book right now." bookId={id} />;
+    return <Unavailable reason="We couldn't load this book right now." bookId={id} />;
   }
   if (!result.ok) {
     if (result.reason === "not_found") notFound();
     if (result.reason === "not_readable") {
       return (
         <Unavailable
-          reason="This book is metadata-only, so reading isn’t available."
+          reason="This book is metadata-only, so reading isn't available."
           bookId={id}
         />
       );
@@ -70,10 +71,14 @@ export default async function ReadPage({ params }: PageProps) {
     );
   }
 
-  // Authenticated users get server-persisted progress for cross-device Resume.
-  const initialProgress = result.userId
-    ? await getReadingProgress(result.book.id).catch(() => null)
-    : null;
+  const [initialProgress, inLibrary] = await Promise.all([
+    result.userId
+      ? getReadingProgress(result.book.id).catch(() => null)
+      : Promise.resolve(null),
+    result.userId
+      ? isInLibrary(result.book.id).catch(() => false)
+      : Promise.resolve(false),
+  ]);
 
   return (
     <Reader
@@ -81,6 +86,7 @@ export default async function ReadPage({ params }: PageProps) {
       content={result.content}
       userId={result.userId}
       initialProgress={initialProgress}
+      inLibrary={inLibrary}
     />
   );
 }

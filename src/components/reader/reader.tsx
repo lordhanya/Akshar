@@ -10,10 +10,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { SectionNav } from "@/components/reader/section-nav";
 import { ReaderSettingsControl } from "@/components/reader/reader-settings";
+import { LibraryPrompt } from "@/components/library-prompt";
 import {
   saveReadingProgress,
   type SavedReadingProgress,
@@ -52,13 +54,14 @@ import {
  *   server (Neon). Never on every scroll.
  * - Resume: conflict-resolve local vs server, then scroll to the saved spot.
  * - Compact settings (theme/size/line-height/width) that recede while reading.
+ * - Book opening cover section on fresh reads (excluded from progress).
  */
 
 const SETTINGS_KEY = "kitap:reader:settings";
 // Where the "current line" sits within the scroll viewport (px from top).
 const ANCHOR_PX = 64;
 // Persist at most this often, and after scroll settles.
-const SAVE_DEBOUNCE_MS = 1500;
+const SAVE_DEBOUNCE_MS = 3000;
 const PUSH_ANCHOR_PX = 120;
 
 export function Reader({
@@ -66,11 +69,13 @@ export function Reader({
   content,
   userId,
   initialProgress,
+  inLibrary,
 }: {
   book: ReaderBook;
   content: ReaderSection[];
   userId: string | null;
   initialProgress: SavedReadingProgress | null;
+  inLibrary: boolean;
 }) {
   const { setTheme, resolvedTheme } = useTheme();
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -86,9 +91,11 @@ export function Reader({
   const pendingRef = useRef<ReaderProgress | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resumedRef = useRef(false);
+  const rafRef = useRef<number>(0);
 
   const weights = useMemo(() => sectionWeights(content), [content]);
   const isAssamese = book.language === "as";
+  const hasCover = Boolean(book.coverUrl);
 
   // ---- Settings: load from localStorage after mount, persist on change ----
   useEffect(() => {
@@ -99,26 +106,16 @@ export function Reader({
     } catch {
       /* ignore */
     }
-    // Sync the reader's displayed theme with the theme the app currently has
-    // (resolvedTheme) rather than the stored one, so opening the reader never
-    // overrides a theme the user chose globally — the stored value is instead
-    // remembered purely as a preference for future explicit changes.
     const current =
       resolvedTheme === "light" || resolvedTheme === "dark" || resolvedTheme === "sepia"
         ? resolvedTheme
         : loaded.theme;
     loaded = { ...loaded, theme: current };
-    // Reading localStorage after hydration requires a post-mount setState;
-    // a lazy initializer can't see window on the server render. This is a
-    // deliberate, hydration-safe exception to the "set state in effect" rule.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings(loaded);
     setMounted(true);
   }, [resolvedTheme]);
 
-  // Apply the theme only when the user actively changes it (e.g. via the Aa
-  // control), never on first open, so the reader inherits — and preserves —
-  // whatever theme is active globally.
   useEffect(() => {
     if (!mounted) return;
     if (!themeAppliedRef.current) {
@@ -138,6 +135,7 @@ export function Reader({
   }, [mounted, settings]);
 
   // ---- Geometry helpers over the scroll container ----
+  // Offsets by cover height so section indices remain content-only.
   const geometry = useCallback(
     (index: number): { top: number; height: number } | null => {
       const el = sectionRefs.current[index];
@@ -160,7 +158,6 @@ export function Reader({
     pendingRef.current = null;
 
     if (userId) {
-      // Authenticated: server is the source of truth (cross-device Resume).
       void saveReadingProgress(book.id, {
         locator: pending.locator,
         pct: pending.pct,
@@ -170,7 +167,6 @@ export function Reader({
       return;
     }
 
-    // Anonymous: persist locally.
     try {
       window.localStorage.setItem(
         progressKey(book.id),
@@ -203,12 +199,15 @@ export function Reader({
     const locator: ReaderLocator = { v: 1, section: active, offset };
     const p = computePct(weights, active, offset);
 
-    setActiveSection(active);
-    setPct(p);
-
+    // Always store the latest progress for saving (even if UI is throttled).
     const progress: ReaderProgress = { locator, pct: p, updatedAt: Date.now() };
     pendingRef.current = progress;
 
+    // Update UI instantly — progress bar should track scroll in real time.
+    setActiveSection(active);
+    setPct(p);
+
+    // Debounce the actual save — wait for stable reading position.
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(flushSave, SAVE_DEBOUNCE_MS);
   }, [content.length, geometry, weights, flushSave]);
@@ -232,11 +231,9 @@ export function Reader({
       const server: ReaderProgress | null = initialProgress
         ? { ...initialProgress, updatedAt: initialProgress.updatedAt }
         : null;
-      // For an authed reader we reconcile local (anon) + server and migrate.
       const resolved = resolveResume(local, server);
       target = resolved.progress;
       if (resolved.source === "local" && target) {
-        // Migrate the newer local position to the server, then clear local.
         void saveReadingProgress(book.id, {
           locator: target.locator,
           pct: target.pct,
@@ -267,7 +264,6 @@ export function Reader({
         g.top + g.height * locator.offset - ANCHOR_PX
       );
       scroller.scrollTop = Math.max(0, wantAnchor);
-      // Compute the visible state right away so the UI is truthful on load.
       const anchorTop = scroller.scrollTop + ANCHOR_PX;
       let active = 0;
       for (let i = 0; i < content.length; i++) {
@@ -297,6 +293,7 @@ export function Reader({
   useEffect(() => {
     function flush() {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       flushSave();
     }
     window.addEventListener("pagehide", flush);
@@ -388,6 +385,74 @@ export function Reader({
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto overscroll-contain"
       >
+        {/* Book opening cover — shown only on fresh reads, excluded from progress. */}
+        {hasCover && (
+          <div
+            className="flex flex-col items-center px-6 pt-16 pb-12 sm:pt-24 sm:pb-16"
+          >
+            <div className="relative mx-auto aspect-[2/3] w-full max-w-[240px] overflow-hidden rounded-lg ring-1 ring-foreground/10 sm:max-w-[280px]">
+              <Image
+                src={book.coverUrl!}
+                alt={`Cover of ${book.title}`}
+                fill
+                sizes="(min-width: 640px) 280px, 240px"
+                unoptimized
+                className="object-cover object-center"
+                draggable={false}
+                priority
+              />
+            </div>
+            <h1 className="mt-8 text-center font-heading text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+              {book.title}
+            </h1>
+            {book.authors.length > 0 && (
+              <p className="mt-2 text-center text-base text-muted-foreground sm:text-lg">
+                {book.authors.join(", ")}
+              </p>
+            )}
+            <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground/70">
+              <span className="uppercase tracking-wider">
+                {book.language === "en"
+                  ? "English"
+                  : book.language === "as"
+                    ? "Assamese"
+                    : book.language.toUpperCase()}
+              </span>
+            </div>
+            <span className="mt-8 text-sm text-muted-foreground/50">
+              ↓ Start reading
+            </span>
+          </div>
+        )}
+
+        {/* No-cover fallback header — shown when there is no cover image. */}
+        {!hasCover && (
+          <div className="flex flex-col items-center px-6 pt-16 pb-8 sm:pt-24 sm:pb-12">
+            <div
+              className="flex aspect-[2/3] w-full max-w-[240px] flex-col items-center justify-center gap-3 rounded-lg bg-muted/60 ring-1 ring-foreground/10 sm:max-w-[280px]"
+              aria-label={`Cover of ${book.title}`}
+              role="img"
+            >
+              <BookOpen className="size-8 text-muted-foreground/50" />
+              <span className="px-4 text-center font-heading text-3xl leading-none text-muted-foreground/60">
+                {book.title.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <h1 className="mt-8 text-center font-heading text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+              {book.title}
+            </h1>
+            {book.authors.length > 0 && (
+              <p className="mt-2 text-center text-base text-muted-foreground sm:text-lg">
+                {book.authors.join(", ")}
+              </p>
+            )}
+            <span className="mt-8 text-sm text-muted-foreground/50">
+              ↓ Start reading
+            </span>
+          </div>
+        )}
+
+        {/* Book content — all progress tracking is over these sections only. */}
         <article
           lang={isAssamese ? "as" : undefined}
           className="prose-reading mx-auto px-6 py-12 sm:px-8"
@@ -446,6 +511,16 @@ export function Reader({
           </Button>
         </div>
       </footer>
+
+      {/* Library prompt — appears once after content loads, dismissible. */}
+      {mounted && (
+        <LibraryPrompt
+          bookId={book.id}
+          title={book.title}
+          inLibrary={inLibrary}
+          userId={userId}
+        />
+      )}
     </div>
   );
 }

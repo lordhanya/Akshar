@@ -208,6 +208,32 @@ export const readingProgress = pgTable(
 );
 
 /**
+ * A user's "Read Later" saved books — conceptually separate from the library.
+ *
+ * Library = books the user is actively reading or has added to their collection.
+ * Read Later = books saved for future reading, a lightweight bookmark.
+ */
+export const readLaterItems = pgTable(
+  "read_later_items",
+  {
+    id: text("id").primaryKey(),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    bookId: text("bookId")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    addedAt: timestamp("added_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("read_later_items_user_book_unique").on(t.userId, t.bookId),
+    index("read_later_items_user_idx").on(t.userId),
+  ]
+);
+
+/**
  * Bookmarks saved by a user within a book.
  */
 export const bookmarks = pgTable(

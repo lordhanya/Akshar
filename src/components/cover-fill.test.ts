@@ -48,6 +48,35 @@ function assertCoverParentHasRelative(source: string, filename: string) {
   expect.fail(`No parent <div> found before <BookCover in ${filename}`);
 }
 
+/**
+ * Walk backwards from an `<Image` tag (with `fill`) to find its parent `<div`
+ * and verify it has a positioning context. Same logic as assertCoverParentHasRelative
+ * but targets a bare `<Image` tag.
+ */
+function assertImageFillParentHasRelative(
+  source: string,
+  filename: string,
+  imagePattern: RegExp = /<Image\s/
+) {
+  const imageMatch = source.match(imagePattern);
+  expect(imageMatch).not.toBeNull();
+  const imageIdx = imageMatch!.index!;
+
+  let searchEnd = imageIdx;
+  while (searchEnd > 0) {
+    const prevNewline = source.lastIndexOf("\n", searchEnd - 1);
+    if (prevNewline < 0) break;
+    const line = source.slice(prevNewline + 1, searchEnd).trim();
+    searchEnd = prevNewline;
+    if (line === "") continue;
+    if (line.includes("<div")) {
+      expect(line).toMatch(/position:|relative|absolute|fixed|sticky/);
+      return;
+    }
+  }
+  expect.fail(`No parent <div> found before <Image in ${filename}`);
+}
+
 describe("BookCover fill layout (parent must be relative)", () => {
   it("book detail page wraps BookCover in a relative container", () => {
     const source = readFileSync(
@@ -66,5 +95,20 @@ describe("BookCover fill layout (parent must be relative)", () => {
       "utf-8"
     );
     assertCoverParentHasRelative(source, "src/components/book-card.tsx");
+  });
+});
+
+describe("Reader cover Image fill layout (parent must be relative)", () => {
+  it("reader cover wraps Image in a relative container", () => {
+    const source = readFileSync(
+      resolve(process.cwd(), "src/components/reader/reader.tsx"),
+      "utf-8"
+    );
+    // The reader uses <Image src={book.coverUrl!} ... fill ...> directly.
+    assertImageFillParentHasRelative(
+      source,
+      "src/components/reader/reader.tsx",
+      /<Image\s+src=\{book\.coverUrl/
+    );
   });
 });

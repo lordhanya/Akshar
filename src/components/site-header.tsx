@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookMarked, Library as LibraryIcon, Search } from "lucide-react";
+import { Bookmark, BookMarked, Library as LibraryIcon, Search } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/session";
@@ -21,7 +21,7 @@ export async function SiteHeader() {
           className="flex items-center gap-2 font-heading text-lg tracking-tight"
         >
           <BookMarked className="size-5 text-primary" />
-          <span lang="as">Akshar</span>
+          <span>Akshar</span>
         </Link>
 
         <nav className="flex items-center gap-1">
@@ -33,12 +33,20 @@ export async function SiteHeader() {
           </Button>
           <ThemeToggle />
           {session?.user ? (
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/library">
-                <LibraryIcon data-icon="inline-start" />
-                Library
-              </Link>
-            </Button>
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/read-later">
+                  <Bookmark data-icon="inline-start" />
+                  Read Later
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/library">
+                  <LibraryIcon data-icon="inline-start" />
+                  Library
+                </Link>
+              </Button>
+            </>
           ) : (
             <Button asChild variant="outline" size="sm">
               <Link href="/sign-in">Sign in</Link>

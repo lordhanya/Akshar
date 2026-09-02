@@ -7,6 +7,7 @@ import { libraryItems, readingProgress } from "@/db/schema";
 import { BookCover } from "@/components/book-cover";
 import { EmptyState } from "@/components/discovery-states";
 import { Button } from "@/components/ui/button";
+import { RemoveFromLibraryButton } from "@/components/remove-from-library-button";
 import { searchBooks, type CatalogBook } from "@/lib/books";
 import { getSession } from "@/lib/session";
 
@@ -200,9 +201,15 @@ function LibraryRow({ entry }: { entry: LibraryEntry }) {
           </p>
         )}
       </div>
-      <Button asChild size="sm">
-        <Link href={`/books/${entry.book.id}/read`}>Continue</Link>
-      </Button>
+      <div className="flex items-center gap-1">
+        <Button asChild size="sm">
+          <Link href={`/books/${entry.book.id}/read`}>Continue</Link>
+        </Button>
+        <RemoveFromLibraryButton
+          bookId={entry.book.id}
+          title={entry.book.title}
+        />
+      </div>
     </li>
   );
 }
@@ -212,7 +219,7 @@ function LibraryCard({ entry }: { entry: LibraryEntry }) {
   return (
     <Link
       href={`/books/${entry.book.id}`}
-      className="group flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground ring-1 ring-foreground/10 transition-shadow hover:shadow-md"
+      className="group relative flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground ring-1 ring-foreground/10 transition-shadow hover:shadow-md"
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-muted/40">
         <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-[1.02]">
@@ -230,6 +237,12 @@ function LibraryCard({ entry }: { entry: LibraryEntry }) {
         <p className="line-clamp-1 text-xs text-muted-foreground">
           {entry.book.authors.join(", ") || "Unknown author"}
         </p>
+      </div>
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <RemoveFromLibraryButton
+          bookId={entry.book.id}
+          title={entry.book.title}
+        />
       </div>
     </Link>
   );

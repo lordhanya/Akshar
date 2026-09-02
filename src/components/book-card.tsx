@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookOpen, SearchX } from "lucide-react";
 import { BookCover } from "@/components/book-cover";
+import { ReadLaterButton } from "@/components/read-later-button";
 import type { CatalogBook } from "@/lib/books";
 import { availabilityFromReadable, availabilityLabel } from "@/lib/availability";
 import { cn } from "@/lib/utils";
@@ -16,10 +17,12 @@ export function BookCard({
   book,
   className,
   sizes,
+  inReadLater,
 }: {
   book: CatalogBook;
   className?: string;
   sizes?: string;
+  inReadLater?: boolean;
 }) {
   return (
     <Link
@@ -36,6 +39,14 @@ export function BookCard({
             src={book.coverUrl}
             alt={book.title}
             sizes={sizes ?? "(min-width: 768px) 12rem, 9rem"}
+          />
+        </div>
+        {/* Bookmark overlay — top-right corner */}
+        <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+          <ReadLaterButton
+            bookId={book.id}
+            inReadLater={inReadLater ?? false}
+            title={book.title}
           />
         </div>
       </div>
