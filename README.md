@@ -55,6 +55,7 @@ Akshar is a web-first digital reading platform designed as a calm, affordable al
 
 - Email + password sign-in via Better Auth
 - Session persistence across devices
+- Sign out from the header
 - Graceful degradation when signed out
 
 ## Screenshots
@@ -195,9 +196,16 @@ Open [http://localhost:3000](http://localhost:3000).
 - [x] **Phase 1** — Book providers (Gutenberg, Open Library, Standard Ebooks) + normalized model + curated seed
 - [x] **Phase 2** — Discovery: home page, search, filters, book details
 - [x] **Phase 3** — Custom reader: continuous scroll, themes, typography, progress, resume, chapter nav
-- [ ] **Phase 4** — Library + cross-device reading progress
-- [ ] **Phase 5** — Assamese / regional-language polish
-- [ ] **Phase 6** — Mobile polish + deploy + user feedback
+- [x] **Phase 4** — Library + cross-device reading progress (saved books, read later, continue reading, reader progress)
+- [x] **Phase 4.5** — Reader/library enhancements: add-to-library prompt, remove from library, read later/bookmarks, catalogue expansion, book-opening cover, instant progress
+- [x] **Phase 5** — Regional-language support (Assamese typography + language browsing, verified-title gating)
+- [x] **Phase 6** — Mobile polish (responsive header, icon-first nav) + deployment prep
+- [ ] **Phase 7** — Future: verified regional content import, password reset/email, feedback loop
+
+### Upcoming (not yet built)
+
+- **Verified Assamese content** — the catalogue intentionally has no Assamese titles because no provider offers verifiable Assamese public-domain records; the infrastructure is ready for curated Wikisource-style imports once rights are confirmed.
+- **Password recovery** — intentionally deferred; requires an email provider. Can be added with a free SMTP tier (e.g. Resend) when desired.
 
 ## Design Principles
 
