@@ -170,7 +170,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `DATABASE_URL_UNPOOLED` | Direct connection (for migrations) |
 | `BETTER_AUTH_SECRET` | Auth secret — `openssl rand -hex 32` |
 | `BETTER_AUTH_URL` | Base URL (`http://localhost:3000` in dev) |
-| `NEXT_PUBLIC_APP_URL` | Public base URL |
+| `APP_BASE_URL` | Base URL |
 
 ### Available Scripts
 

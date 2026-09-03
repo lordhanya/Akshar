@@ -6,6 +6,4 @@ import { createAuthClient } from "better-auth/client";
  * Prefixed under the app's auth base path ("/api/auth"). Uses cookies for
  * session management via the server-side nextCookies plugin.
  */
-export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
-});
+export const authClient = createAuthClient();
