@@ -427,4 +427,19 @@ export const curatedSeed: SeedBook[] = [
     contentUrl: "https://www.gutenberg.org/ebooks/120.txt.utf-8",
     provenance: "Verified via Gutendex id 120 (copyright:false), 2026-09-01",
   },
+  {
+    id: "gut-2800",
+    title: "The Koran (Al-Qur'an)",
+    description:
+      "The complete text of the Quran translated into English by J. M. Rodwell, with an introduction by G. Margoliouth.",
+    language: "en",
+    source: "gutenberg",
+    sourceId: "2800",
+    rights: "public_domain",
+    coverUrl: "https://www.gutenberg.org/cache/epub/2800/pg2800.cover.medium.jpg",
+    authors: [{ name: "J. M. Rodwell", slug: "j-m-rodwell" }],
+    genres: ["Religion", "Spirituality", "Classic Literature"],
+    contentUrl: "https://www.gutenberg.org/ebooks/2800.txt.utf-8",
+    provenance: "Verified via Gutendex id 2800 (copyright:false), 2026-09-01",
+  },
 ];
