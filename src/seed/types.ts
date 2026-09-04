@@ -29,4 +29,6 @@ export interface SeedBook {
   contentUrl?: string | null;
   /** Verified attribution for this record (provenance note). */
   provenance?: string | null;
+  /** Optional editorial/context note shown in the reader (e.g. edition disclaimers). */
+  editorialNote?: string | null;
 }

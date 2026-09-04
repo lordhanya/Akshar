@@ -441,5 +441,15 @@ export const curatedSeed: SeedBook[] = [
     genres: ["Religion", "Spirituality", "Classic Literature"],
     contentUrl: "https://www.gutenberg.org/ebooks/2800.txt.utf-8",
     provenance: "Verified via Gutendex id 2800 (copyright:false), 2026-09-01",
+    editorialNote:
+      "About this edition\n\n" +
+      "The Koran is an English translation of the Qur'an by J. M. Rodwell, first published in the 19th century. " +
+      "In this edition, Rodwell arranged the surahs according to his proposed chronological order of revelation rather than the traditional order of the Qur'an.\n\n" +
+      "This arrangement can be useful for readers who are new to Islam or who want to explore the Qur'an from a historical and chronological perspective. " +
+      "However, it is important to understand that this is not the traditional arrangement of the Qur'an.\n\n" +
+      "If you would like to read the Qur'an in its traditional 114-surah order, including the original Arabic text and verse-by-verse transliteration and English translations, " +
+      "we recommend visiting quran.com.\n\n" +
+      "Read this edition as a historical English translation, not as a replacement for the traditional Qur'anic reading order.\n\n" +
+      "Read the Qur'an in its traditional order → quran.com",
   },
 ];

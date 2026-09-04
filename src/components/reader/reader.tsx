@@ -10,12 +10,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { SectionNav } from "@/components/reader/section-nav";
 import { ReaderSettingsControl } from "@/components/reader/reader-settings";
 import { LibraryPrompt } from "@/components/library-prompt";
+import { cn } from "@/lib/utils";
 import {
   saveReadingProgress,
   type SavedReadingProgress,
@@ -449,6 +450,58 @@ export function Reader({
             <span className="mt-8 text-sm text-muted-foreground/50">
               ↓ Start reading
             </span>
+          </div>
+        )}
+
+        {/* Editorial / context note — book-specific, shown between cover and content. */}
+        {book.editorialNote && (
+          <div className="mx-auto max-w-prose px-6 pt-8 pb-4 sm:px-8">
+            <div className="rounded-xl border border-border bg-muted/40 px-6 py-5 text-sm leading-relaxed text-muted-foreground">
+              {book.editorialNote.split("\n\n").map((para, i) => {
+                const heading = i === 0;
+                const isLinkParagraph = para.startsWith("Read the Qur");
+                const text = para.replace(/^Read the Qur[^\n]*?\u2192\s*/, "");
+                return (
+                  <p
+                    key={i}
+                    className={cn(
+                      heading ? "text-base font-semibold text-foreground" : "mt-3",
+                      isLinkParagraph && "mt-4"
+                    )}
+                  >
+                    {isLinkParagraph ? (
+                      <a
+                        href="https://quran.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-medium text-primary underline-offset-2 hover:underline"
+                      >
+                        {text}
+                        <ExternalLink className="size-3.5" aria-hidden />
+                      </a>
+                    ) : (
+                      para.split("quran.com").map((part, j) =>
+                        j === 0 ? (
+                          <span key={j}>{part}</span>
+                        ) : (
+                          <span key={j}>
+                            <a
+                              href="https://quran.com/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-primary underline-offset-2 hover:underline"
+                            >
+                              quran.com
+                            </a>
+                            {part}
+                          </span>
+                        )
+                      )
+                    )}
+                  </p>
+                );
+              })}
+            </div>
           </div>
         )}
 

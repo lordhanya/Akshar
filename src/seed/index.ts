@@ -91,6 +91,7 @@ async function seedOne(seed: SeedBook): Promise<string> {
       coverUrl: seed.coverUrl ?? null,
       rights: seed.rights,
       status: "published",
+      editorialNote: seed.editorialNote ?? null,
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
@@ -102,6 +103,7 @@ async function seedOne(seed: SeedBook): Promise<string> {
         coverUrl: seed.coverUrl ?? null,
         rights: seed.rights,
         status: "published",
+        editorialNote: seed.editorialNote ?? null,
         updatedAt: new Date(),
       },
     });

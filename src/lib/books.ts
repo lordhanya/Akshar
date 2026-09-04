@@ -30,6 +30,7 @@ export interface CatalogBook {
   genres: string[];
   /** True when the book is readable (rights permit it). */
   readable: boolean;
+  editorialNote: string | null;
 }
 
 export interface BookFilter {
@@ -73,6 +74,7 @@ interface BookRow {
   createdAt: Date;
   author_names: string[];
   genre_names: string[];
+  editorialNote: string | null;
 }
 
 function toCatalogBook(r: BookRow): CatalogBook {
@@ -91,6 +93,7 @@ function toCatalogBook(r: BookRow): CatalogBook {
     authors: r.author_names,
     genres: r.genre_names,
     readable: isReadable(r.rights),
+    editorialNote: r.editorialNote,
   };
 }
 
@@ -183,6 +186,7 @@ export async function searchBooks(f: BookFilter = {}): Promise<CatalogBook[]> {
       createdAt: books.createdAt,
       author_names: AUTHOR_NAMES,
       genre_names: GENRE_NAMES,
+      editorialNote: books.editorialNote,
     })
     .from(books)
     .leftJoin(bookAuthors, eq(bookAuthors.bookId, books.id))
@@ -215,6 +219,7 @@ export async function getBookById(id: string): Promise<CatalogBook | null> {
       createdAt: books.createdAt,
       author_names: AUTHOR_NAMES,
       genre_names: GENRE_NAMES,
+      editorialNote: books.editorialNote,
     })
     .from(books)
     .leftJoin(bookAuthors, eq(bookAuthors.bookId, books.id))

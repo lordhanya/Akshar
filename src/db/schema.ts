@@ -70,6 +70,7 @@ export const books = pgTable(
     coverUrl: text("coverUrl"),
     rights: rightsEnum("rights").notNull(),
     status: text("status").notNull().default("published"),
+    editorialNote: text("editorialNote"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
