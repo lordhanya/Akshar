@@ -42,7 +42,7 @@ export function BookCard({
           />
         </div>
         {/* Bookmark overlay — top-right corner */}
-        <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+        <div className="absolute right-2 top-2 z-10">
           <ReadLaterButton
             bookId={book.id}
             inReadLater={inReadLater ?? false}
