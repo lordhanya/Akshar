@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { friendlySignInError } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +22,7 @@ export function SignInForm() {
     const { error } = await authClient.signIn.email({ email, password });
     setLoading(false);
     if (error) {
-      setError(error.message ?? "Unable to sign in.");
+      setError(friendlySignInError(error.code));
       return;
     }
     router.push("/");

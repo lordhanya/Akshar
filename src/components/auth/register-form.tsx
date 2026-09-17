@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { friendlySignUpError } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +27,7 @@ export function RegisterForm() {
     });
     setLoading(false);
     if (error) {
-      setError(error.message ?? "Unable to create an account.");
+      setError(friendlySignUpError(error.code));
       return;
     }
     router.push("/");
