@@ -25,7 +25,12 @@ export default function SignInPage() {
         </CardHeader>
         <CardContent>
           <SignInForm />
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+          <p className="mt-3 text-center text-sm text-muted-foreground">
+            <Link href="/forgot-password" className="text-primary underline-offset-4 hover:underline">
+              Forgot your password?
+            </Link>
+          </p>
+          <p className="mt-3 text-center text-sm text-muted-foreground">
             New here?{" "}
             <Link href="/register" className="text-primary underline-offset-4 hover:underline">
               Create an account

@@ -46,6 +46,15 @@ const SIGN_UP_MESSAGES: Record<string, string> = {
   SESSION_EXPIRED: "Session expired. Please try again.",
 };
 
+const RESET_PASSWORD_MESSAGES: Record<string, string> = {
+  INVALID_TOKEN:
+    "This reset link has expired or is invalid. Please request a new one.",
+  PASSWORD_TOO_SHORT: "Password must be at least 8 characters.",
+  PASSWORD_TOO_LONG: "Password is too long.",
+  INVALID_PASSWORD: "Please choose a stronger password.",
+  USER_NOT_FOUND: "Something went wrong. Please try again.",
+};
+
 const GENERIC = "Something went wrong. Please try again.";
 
 export function friendlySignInError(code?: string | null): string {
@@ -56,4 +65,9 @@ export function friendlySignInError(code?: string | null): string {
 export function friendlySignUpError(code?: string | null): string {
   if (!code) return GENERIC;
   return SIGN_UP_MESSAGES[code] ?? GENERIC;
+}
+
+export function friendlyResetPasswordError(code?: string | null): string {
+  if (!code) return GENERIC;
+  return RESET_PASSWORD_MESSAGES[code] ?? GENERIC;
 }

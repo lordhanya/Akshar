@@ -3,6 +3,7 @@ import { nextCookies } from "better-auth/next-js";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db";
 import * as authSchema from "@/db/auth-schema";
+import { sendPasswordResetEmail } from "@/lib/resend";
 
 /**
  * Better Auth instance (email + password only for Phase 0).
@@ -22,6 +23,11 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, token }) => {
+      const baseUrl = process.env.APP_BASE_URL || process.env.BETTER_AUTH_URL;
+      const resetUrl = `${baseUrl}/api/auth/reset-password/${token}?callbackURL=${encodeURIComponent("/reset-password")}`;
+      await sendPasswordResetEmail(user.email, resetUrl);
+    },
   },
   baseURL: process.env.BETTER_AUTH_URL,
   plugins: [nextCookies()],
