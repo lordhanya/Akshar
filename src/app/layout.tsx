@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import {
   Geist,
@@ -8,6 +8,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,13 +49,37 @@ export const metadata: Metadata = {
     title: "Akshar — a calm place to read",
     description:
       "Discover and read free, legally distributable books. A calm digital reading room with regional-language support.",
+    images: ["/og-image.png"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Akshar — a calm place to read",
     description:
       "Discover and read free, legally distributable books. A calm digital reading room with regional-language support.",
+    images: ["/og-image.png"],
   },
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/icons/icon-180x180.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Akshar",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf9f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#171717" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -74,6 +99,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           {children}
         </ThemeProvider>
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );
